@@ -9,6 +9,9 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+// 🛡️ Security: Trust proxy (needed for Render/Vercel)
+app.set('trust proxy', 1);
+
 const defaultAllowedOrigins = [
     'http://localhost:5173',
     'https://support-desk-frontend-mu.vercel.app',

@@ -19,6 +19,11 @@ const sendEmail = async (options) => {
             },
         };
 
+    console.log('📬 Attempting to send email with config:', {
+        ...config,
+        auth: { ...config.auth, pass: '****' } // mask password
+    });
+
     const transporter = nodemailer.createTransport(config);
 
     const message = {
