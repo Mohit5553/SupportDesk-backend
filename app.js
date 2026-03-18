@@ -9,18 +9,37 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+const defaultAllowedOrigins = [
+    'http://localhost:5173',
+    'https://support-desk-frontend-mu.vercel.app',
+    'https://support-desk-frontend-nizicmd74-jts-projects-0424a64c.vercel.app',
+];
+
+const envAllowedOrigins = (process.env.FRONTEND_URL || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+const allowedOrigins = [...new Set([...defaultAllowedOrigins, ...envAllowedOrigins])];
+
+const isAllowedOrigin = (origin) => {
+    if (!origin) return true;
+    if (allowedOrigins.includes(origin)) return true;
+
+    try {
+        const { hostname } = new URL(origin);
+        return hostname.endsWith('.vercel.app');
+    } catch {
+        return false;
+    }
+};
+
 // Security & parsing middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
-const allowedOrigins = [
-    "http://localhost:5173",
-    "https://support-desk-frontend-mu.vercel.app",
-    "https://support-desk-frontend-nizicmd74-jts-projects-0424a64c.vercel.app"
-];
-
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (isAllowedOrigin(origin)) {
             callback(null, true);
         } else {
             callback(new Error("CORS not allowed"));

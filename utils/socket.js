@@ -2,15 +2,22 @@ const socketio = require('socket.io');
 
 let io;
 
+const defaultAllowedOrigins = [
+    'http://localhost:5173',
+    'https://support-desk-frontend-mu.vercel.app',
+    'https://support-desk-frontend-nizicmd74-jts-projects-0424a64c.vercel.app',
+];
+
+const envAllowedOrigins = (process.env.FRONTEND_URL || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
 const initSocket = (server) => {
     io = socketio(server, {
         cors: {
-            origin: [
-                "http://localhost:5173",
-                "https://support-desk-frontend-mu.vercel.app",
-                "https://support-desk-frontend-nizicmd74-jts-projects-0424a64c.vercel.app"
-            ],
-            methods: ["GET", "POST"]
+            origin: [...new Set([...defaultAllowedOrigins, ...envAllowedOrigins, /\.vercel\.app$/])],
+            methods: ['GET', 'POST']
         }
     });
 
