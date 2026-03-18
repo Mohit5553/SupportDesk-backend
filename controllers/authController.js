@@ -254,10 +254,22 @@ const forgotPassword = async (req, res, next) => {
                 `,
             });
         } catch (emailErr) {
+            console.error('📧 Forgot Password Email Error:', emailErr);
+            
             user.passwordResetToken = undefined;
             user.passwordResetExpires = undefined;
             await user.save({ validateBeforeSave: false });
-            return res.status(500).json({ success: false, message: 'Email could not be sent. Please try again.' });
+
+            let errorMessage = 'Email could not be sent. Please try again.';
+            if (emailErr.code === 'EAUTH') {
+                errorMessage = 'Email authentication failed. Please check your SMTP settings or Gmail App Password.';
+            }
+
+            return res.status(500).json({ 
+                success: false, 
+                message: errorMessage,
+                ...(process.env.NODE_ENV === 'development' && { error: emailErr.message })
+            });
         }
 
         res.json(genericResponse);
