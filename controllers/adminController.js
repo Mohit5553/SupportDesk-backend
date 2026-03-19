@@ -35,6 +35,11 @@ const getDashboard = async (req, res, next) => {
             { $sort: { count: -1 } },
         ]);
 
+        // Tickets by status
+        const byStatus = await Ticket.aggregate([
+            { $group: { _id: '$status', count: { $sum: 1 } } },
+        ]);
+
         // Tickets by priority
         const byPriority = await Ticket.aggregate([
             { $group: { _id: '$priority', count: { $sum: 1 } } },
@@ -214,6 +219,7 @@ const getDashboard = async (req, res, next) => {
             byCategory,
             bySubcategory,
             byPriority,
+            byStatus,
             byLevel,
             slaByCategory,
             slaByLevel,
